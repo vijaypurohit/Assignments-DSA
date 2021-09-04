@@ -1,0 +1,627 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage[affil-it]{authblk}
+\usepackage[left=2cm, right=2cm, top=2cm, bottom=3cm]{geometry}
+\usepackage{multicol}
+\usepackage{listings}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{algpseudocode,amsthm}
+\usepackage{calrsfs}
+\DeclareMathAlphabet{\pazocal}{OMS}{zplm}{m}{n}
+% \setlength{\columnsep}{-4cm}
+% \usepackage{tikz-qtree}
+\usepackage[hidelinks]{hyperref}
+\usepackage{subcaption}
+\usepackage{float}
+
+\title{DS LAB CS513: Assignment 02}
+\date{}
+\author{Vijay Purohit \mid 214101058}
+\affil{M.Tech CSE, IITG}
+\setcounter{tocdepth}{3}
+
+\begin{document}
+\pagenumbering{arabic}
+\maketitle
+\noindent\rule{\textwidth}{0.2pt}
+\tableofcontents
+    \newpage
+\listoffigures
+    \newpage
+
+
+\section{FILES AND FUNCTIONS DESCRIPTION} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SECTION BEGIN : Files And Functions Description %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\subsection{avl\_nodes.h}
+This header file contains node structure for AVL Tree. Node Name is ``ANode".
+
+\subsection{avl\_functions.h}
+This header file contains the definition of functions for AVL Class ``ATree". It contains the following functions.
+
+\subsubsection{Copy Constructor Functions}
+
+\begin{itemize}
+\item \textbf{ATree(const ATree \&avl\_o)}\newline
+This is copy constructor which is used to copy one AVL Class object to another AVL Class object.
+
+\item \textbf{void operator\=(const ATree \&avl\_o)}\newline
+This is overloading of assignment operator, used to copy from one AVL Class object to another AVL Class object.
+
+\item \textbf{ANode* copyLeftRightNode(ANode* tnode)}\newline
+This function is a helper function for copy constructor, taking input as root and recursively copying the tree structure. It creates clone by copying key, left and right pointers.
+\end{itemize}
+
+\subsubsection{void t\_display(ANode *ptr, int level)}
+This is helper function for Displaying Tree in the console for better run-time visualization and proper operations handling at run-time.
+It start from printing level as 1 as input and taking root as input.
+
+\subsubsection{int search(int item)}
+This function is used for searching a node item in AVL Tree.
+The time complexity is $O(\log n)$ since we are moving from root to leaf path.
+
+\subsubsection{void t\_insert(int k)}
+\label{insert_function} 
+This is insert function for inserting a node key `k' into AVL Tree and for performing necessary rotations. If element already present throw a exception.
+
+\begin{itemize}
+	\item \textbf{LL Imbalance (right rotation)}\newline
+	This part calls another function (Refer \ref{itm:Imbalance_LL_func}) which performs the right single rotation. Adjusting balance factor at the end.
+	\item \textbf{RR Imbalance (left rotation)}\newline
+	This part calls another function (Refer \ref{itm:Imbalance_RR_func}) which performs the left single rotation. Adjusting balance factor at the end.
+	\item \textbf{LR Imbalance (double rotation)}\newline
+	This part calls another function (Refer \ref{itm:Imbalance_LR_func}) which performs the double rotation, left rotation then right rotation. Adjusting balance factor at the end.
+	\item \textbf{RL Imbalance (double rotation)}\newline
+	This part calls another function (Refer \ref{itm:Imbalance_RL_func}) which performs the double rotation, right rotation then left rotation. Adjusting balance factor at the end.
+\end{itemize}
+The time complexity for this function is roughly $O(\log n)$. Number of rotation would be roughly at most one during inserting a single key.
+
+\subsubsection{void Delete(int k)}
+\label{delete_function}
+This is delete function for deleting a node key `k' into AVL Tree and for performing necessary rotations.
+
+\begin{itemize}
+    \item \textbf{Deleting Node with one or zero child}\newline
+	This part calls another function (Refer \nameref{case_a}) which delete the node with key `k' which having zero or one child.
+	\item \textbf{Deleting Node with both children}\newline
+	This part calls another function (Refer \nameref{case_b}) which delete the node with key `k' which having both the children.
+	\item \textbf{LL Imbalance (right rotation)}\newline
+	This part calls another function (Refer \ref{itm:Imbalance_LL_func}) which performs the right single rotation. Adjusting balance factor at the end.
+	\item \textbf{RR Imbalance (left rotation)}\newline
+	This part calls another function (Refer \ref{itm:Imbalance_RR_func}) which performs the left single rotation. Adjusting balance factor at the end.
+	\item \textbf{LR Imbalance (double rotation)}\newline
+	This part calls another function (Refer \ref{itm:Imbalance_LR_func}) which performs the double rotation, left rotation then right rotation. Adjusting balance factor at the end.
+	\item \textbf{RL Imbalance (double rotation)}\newline
+	This part calls another function (Refer \ref{itm:Imbalance_RL_func}) which performs the double rotation, right rotation then left rotation. Adjusting balance factor at the end.
+\end{itemize}
+The time complexity for this function is roughly $O(\log n)$. Number of rotations can be $O(\log n)$ while deleting a node and adjusting balance factor from that node to root of the tree.
+
+\subsubsection{void case\_a(ANode* par, ANode* loc)}
+\label{case_a}
+This is helper function for Delete operation for node having one or no child.
+par is parent of the node to be deleted and loc is the location of node to be deleted.
+It delete the leaf node and update the pointer of its parent to deleted node child (if any) else to nullptr.
+
+\subsubsection{void case\_b(ANode* par, ANode* loc)}
+\label{case_b}
+This is helper function for Delete operation for node having both the children.
+par is parent of the node to be deleted and loc is the location of node to be deleted.
+It finds the inorder successor of the node and replace the key of node at location with successor node key, then deleting the successor node with function (Refer \nameref{case_a}).
+
+\subsubsection{Rotation Functions}
+\begin{enumerate}
+
+\item \textbf{ANode* Imbalance\_LL(ANode* s, ANode *r, int s\_bf, int r\_bf)}\newline
+    \label{itm:Imbalance_LL_func}
+This function is used to perform right rotation whenever there is LL Imbalance at the node `s'.
+`s' will point to the place where re-balancing may be necessary. `r' point to the node where firsts potential rotation may happen. `s\_bf' is the new balance factor of s. `r\_bf' is the new balance factor of r. (Figure ~\ref{fig:LL_Imbalance_Logic})
+    
+\item \textbf{ANode* Imbalance\_RR(ANode* s, ANode *r, int s\_bf, int r\_bf)}\newline
+    \label{itm:Imbalance_RR_func}
+This function is used to perform left rotation whenever there is RR Imbalance at the node `s'.
+`s' will point to the place where re-balancing may be necessary. `r' point to the node where firsts potential rotation may happen. `s\_bf' is the new balance factor of s. `r\_bf' is the new balance factor of r. (Figure ~\ref{fig:RR_Imbalance_Logic})
+
+\item \textbf{ANode* Imbalance\_LR(ANode* s, ANode *r, int s\_bf, int r\_bf)}\newline
+    \label{itm:Imbalance_LR_func}
+This function is used to perform double rotation (left then right rotation) whenever there is LR Imbalance at the node `s'.
+`s' will point to the place where re-balancing may be necessary. `r' point to the node where firsts potential rotation may happen. `s\_bf' is the new balance factor of s. `r\_bf' is the new balance factor of r.  (Figure ~\ref{fig:LR_Imbalance_Logic})
+    
+\item \textbf{ANode* Imbalance\_RL(ANode* s, ANode *r, int s\_bf, int r\_bf)}\newline
+    \label{itm:Imbalance_RL_func}
+This function is used to perform double rotation (right then left rotation) whenever there is RL Imbalance at the node `s'.
+`s' will point to the place where re-balancing may be necessary. `r' point to the node where firsts potential rotation may happen. `s\_bf' is the new balance factor of s. `r\_bf' is the new balance factor of r. (Figure ~\ref{fig:RL_Imbalance_Logic})
+
+\end{enumerate}
+
+\subsubsection{void print\_graphviz(string file\_name)}
+This function does a level order traversal of the tree and generate two files according to file name provided. One is `.gv' file for graph-viz to read and another final `png' output file of the tree.
+It will automatically execute the graph-viz command to generate the file.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SECTION END :  Files And Functions Description %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+\section{OPERATION LOGIC} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SECTION BEGIN : Operation Logic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+Balance Factor is calculated as the height of left subtree minus the height of the right subtree. 
+
+\subsection{Print Function Logic}
+We print the graph using package graphviz. 
+Initially we traverse the tree in Level order manner (BFS Traversal) and store the node information, its children in the file with extension `.gv' according to graphviz format. Then program execute the graphviz command to generate the respective `.png' file. In a program, we can provide the file name suffix in order to distinguish our different `.png' file.
+
+\subsection{Search Function Logic}
+\begin{itemize}
+	\item We are finding the location of search element `k' starting from the root down to the leaf, until either element exist or we get nullptr reference.
+	\item If it is equal to the current node Key value, then return its reference.
+	\item If it is less than current node Key value, then go to left sub-tree, repeat process.
+	\item Else we go to the right sub-tree and repeat the process.
+\end{itemize}
+
+\subsection{Insert Function Logic}
+The logic is borrowed from the book ``The Art of Computer Programming Vol 3, D.E. Knuth". (Function Reference: \nameref{insert_function}).
+        \begin{figure}[H]
+                \centering
+                \includegraphics[scale=0.7]{ss/Logic_insertion.png}
+            \caption{Logic: Balanced Tree Search and Insertion.}
+        \label{fig:logic_insert}
+        \end{figure}  
+\begin{itemize}
+	\item[A1.] Initialization of pointers T, S and P. The pointer variable P will move down the tree; S will point to the place where rebalancing may be necessary, and T always points to the parent of S.
+	\item[A2.] Comparison with existing Key in the Tree, if Key found then terminate otherwise move down left or right subtree of node comparing with the key `k'.
+	\item[A3.] Moving left $Q \leftarrow LEFTC(P)$, we found the leaf, then we insert the new node there. If BF of any node is non-zero then we update the respective S and P pointers. Set $T \leftarrow P$ and $S \leftarrow Q$. Finally set $P \leftarrow Q$ and Return To A2.
+	\item[A4.] Moving right $Q \leftarrow RIGHTC(P)$, we found the leaf, then we insert the new node there. If BF of any node is non-zero then we update the respective S and P pointers. Set $T \leftarrow P$ and $S \leftarrow Q$. Finally set $P \leftarrow Q$ and Return To A2.
+	\item[A5.] Insertion of New Node. [If From Left] $LEFTC(P) \leftarrow Q$. [If From Right] $RIGHTC(P) \leftarrow Q$.
+	\item[A6.] Adjusting Balance Factors. Now the balance factors on nodes between S and Q need to be changed from zero to $\pm1$. For that we maintain a variable $a$ which denotes the position of new node with respect to S i.e. If $k < Key(S) $ then set $a \leftarrow +1$ Else $a \leftarrow -1$. 
+	\newline
+	Accordingly with respect to $a$ we SET P and R pointer to the Left or right child of S. From P pointer to Q (i.e. new Node) pointer we update the balance factor of all intermediate nodes between them. If k is in left side of P, then BF is 1 Else -1.
+	\item[A7.] Balancing Act. Several Cases:
+	    \begin{itemize}
+             \item If $BF(S) = 0$ (Previous), then tree has grown higher now (after insertion). Set $BF(S) \leftarrow a$. Terminate.
+             \item If $BF(S) = -a$ (Previous), then tree has gotten more balanced (after insertion). Set $BF(S) \leftarrow 0$. Terminate.
+             \item If $BF(S) = a$ (Previous), then tree has gotten out of balance (after insertion).
+             \newline
+             If $BF(R) = a$, Go to A8. Else If $BF(R) = -a$ Go to A9.
+       \end{itemize}
+     \item[A8.] Single Rotation.  If $a = 1$, Go to (\nameref{LL_Imb_op_logic}). Else If $a = -1$ Go to (\nameref{RR_Imb_op_logic}).
+     \item[A9.] Double Rotation.  If $a = 1$, Go to (\nameref{LR_Imb_op_logic}). Else If $a = -1$ Go to (\nameref{RL_Imb_op_logic}).
+     \item[A10.] (Final Touch) Since after rotation P now points to New Subtree Root, and T point to the parent of the old subtree root of s.
+    We therefore adjust T pointer to P.
+     If $S == RIGHTC(T)$ (Previous) then set $RIGHTC(T) \leftarrow P$ Else $LEFTC(T) \leftarrow P$.
+\end{itemize}
+
+\subsection{Delete Function Logic}
+The logic is borrowed from the book ``The Art of Computer Programming Vol 3, D.E. Knuth". (Function Reference: \nameref{delete_function}).
+
+\begin{itemize}
+    \item[A1.] Searching. We search for a node value `k' to be deleted traversing from root to leaf path. At the same time we push nodes we encounter in the path to the stack for potential rotation purpose.
+    \item[A2.] Deletion. If Element exist then we delete it from the tree like a normal balanced binary tree deletion procedure. \newline
+    If node to be deleted has one or zero children (Refer Function \nameref{case_a}.   \newline
+    Else if node to be deleted has both the children (Refer Function \nameref{case_b}. In this case we also push nodes into stack, until we encounter the successor. At the end, since we deleted the successor node, we changed our node to be deleted value (k=successor key), as now we may need to perform rotation from there.
+    
+    \item[A3.] Adjusting Balance Factor. We Repeat this, until we reach to the head node, i.e no rotation needed. \newline 
+    Now, for current iteration, with the help of the stack, we pop the top element as current S, Next element popped to be as current T. \newline
+    Also for we maintain a variable $a$ which denotes the position of deleted node with respect to S i.e. If $k < Key(S) $ then set $a \leftarrow +1$ Else $a \leftarrow -1$. 
+    
+    \item[A4.] Balancing Act. Several Cases:
+	    \begin{itemize}
+             \item If $BF(S) = a$ (Previous), Node deleted is on same side where tree height is one more than other side. Set $BF(S) \leftarrow 0$. Continue Next iteration of A3.
+             \item If $BF(S) = 0$ (Previous), Tree was perfectly balanced previously, but now one side has extra height after deletion. Set $BF(S) \leftarrow -a$. Terminate.
+             \item If $BF(S) = -a$ (Previous), Deleting a node on one side, make it imbalance due to other side, therefore tree has gotten out of balance (after deletion).
+             \newline
+             R pointer points to the opposite side of S in comparison of node to be deleted.
+             If $BF(S) == 1 $ then set $R \leftarrow LEFTC(S)$ Else $R \leftarrow RIGHTC(S)$.
+             \newline
+             If $BF(R) = -a$, Go to A5. Else If $BF(R) = 0$ Go to A6. Else If $BF(R) = a$ Go to A7.
+       \end{itemize}
+       
+    \item[A5.] Single Rotation.  If $a = -1$, Go to (\nameref{LL_Imb_op_logic}). Else If $a = 1$ Go to (\nameref{RR_Imb_op_logic}). Repeat A3.
+    \item[A6.] Single Rotation.  If $a = -1$, Go to (\nameref{LL_Imb_op_logic}). Else If $a = 1$ Go to (\nameref{RR_Imb_op_logic}). Terminate as height of subtree is not changed, so no more rotation required.
+    \item[A7.] Double Rotation.  If $a = -1$, Go to (\nameref{LR_Imb_op_logic}). Else If $a = 1$ Go to (\nameref{RL_Imb_op_logic}). Repeat A3.
+    \item[A8.] (Final Touch) Since after rotation P now points to New Subtree Root, and T point to the parent of the old subtree root of s.
+    We therefore adjust T pointer to P.
+     If $S == RIGHTC(T)$ (Previous) then set $RIGHTC(T) \leftarrow P$ Else $LEFTC(T) \leftarrow P$.
+\end{itemize}
+
+\subsection{LL Imbalance Logic}
+\label{LL_Imb_op_logic}
+(Rotation Function Reference: \ref{itm:Imbalance_LL_func}). \newline
+Here we are performing right rotation and change the necessary pointers.
+(Refer Figure  ~\ref{fig:LL_Imbalance_Logic}).
+\begin{enumerate}
+    \item (Insertion) $BF(S)$ and $BF(R)$ are changed to $0$.
+    \item (Deletion $BF(R) == BF(S)$) $BF(S)$ and $BF(R)$ are changed to $0$.
+    \item (Deletion $BF(R) == 0$) $BF(S)$ is same as previous and $BF(R) = a$ is changed.
+\end{enumerate}
+
+\subsection{RR Imbalance Logic}
+\label{RR_Imb_op_logic}
+(Rotation Function Reference: \ref{itm:Imbalance_RR_func}). \newline
+Here we are performing left rotation and change the necessary pointers.
+(Refer Figure ~\ref{fig:RR_Imbalance_Logic}).
+\begin{enumerate}
+    \item (Insertion) $BF(S)$ and $BF(R)$ are changed to $0$.
+    \item (Deletion $BF(R) == BF(S)$) $BF(S)$ and $BF(R)$ are changed to $0$.
+    \item (Deletion $BF(R) == 0$) $BF(S)$ is same as previous and $BF(R) = a$ is changed.
+\end{enumerate}
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.7]{ss/LL_Imbalance_Logic.png}
+                \caption{LL BF Logic}
+                \label{fig:LL_Imbalance_Logic}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.7]{ss/RR_Imbalance_Logic.png}
+                \caption{RR BF Logic}
+                \label{fig:RR_Imbalance_Logic}
+            \end{subfigure}
+            \caption{Rotation: Single Rotation BF Logic}
+        \label{fig:single_rotations}
+        \end{figure}  
+    
+\subsection{LR Imbalance Logic}
+\label{LR_Imb_op_logic}
+(Rotation Function Reference: \ref{itm:Imbalance_LR_func})
+Here we are performing double rotation (left then right rotation) and change the necessary pointers. $BF(S)$ and $BF(R)$ are changed according to $BF(P)$. (Refer Figure ~\ref{fig:LR_Imbalance_Logic}).
+    \begin{enumerate}
+        \item (Insertion at Left side of S $(a=1)$ )\newline
+        If P got balanced with $BF(P)=0$ after insertion, then after rotation S and R is also balanced with 
+        \begin{align}
+            BF(S)=0, \: BF(R)=0
+        \end{align}
+        If P has left child $BF(P)=a \:(1)$ after insertion, then after rotation it will move to the right child of R.
+        \begin{align}
+            BF(S)=-a, \: BF(R)=0
+        \end{align}
+        If P has right child $BF(P)=-a \: (-1)$ after insertion, then after rotation it will move to the left child of S.
+         \begin{align}
+            BF(S)=0, \: BF(R)=a
+        \end{align}
+        
+        \item (Deletion at Right side of S $(a=-1)$) \newline
+        If P is already balanced with $BF(P)=0$ before deletion `d', after deletion S and R is also balanced with 
+        \begin{align}
+            BF(S)=0, \: BF(R)=0
+        \end{align}
+        If P has only right child $BF(P)=a \: (-1)$ as well as deletion from right side of S, then after rotation it will move to the left child of S
+       \begin{align}
+            BF(S)=0, \: BF(R)=-a
+        \end{align}
+        If P has only left child $BF(P)=-a \: (1)$ as well as deletion from right side of S, then after rotation it will move to the right child of R  
+        \begin{align}
+            BF(S)=a, \: BF(R)=0
+        \end{align}
+    \end{enumerate}
+
+    \begin{figure}[H]
+        \begin{subfigure}{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.8]{ss/LR_Imbalance_Logic_insert.png}
+            \caption{Insertion}
+        \end{subfigure}
+        \begin{subfigure}{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.8]{ss/LR_Imbalance_Logic_delete.png}
+            \caption{Deletion}
+        \end{subfigure}
+        \caption{Rotation: LR BF Logic}
+    \label{fig:LR_Imbalance_Logic}
+    \end{figure}  
+
+\subsection{RL Imbalance Logic}
+\label{RL_Imb_op_logic}
+(Rotation Function Reference: \ref{itm:Imbalance_RL_func})
+Here we are performing double rotation (right then left rotation) and change the necessary pointers.$BF(S)$ and $BF(R)$ are changed according to $BF(P)$. (Refer Figure ~\ref{fig:RL_Imbalance_Logic}). 
+
+    \begin{enumerate}
+        \item (Insertion at Right side of S $(a=-1)$) \newline
+        If P got balanced with $BF(P)=0$ after insertion, then after rotation S and R is also balanced with 
+        \begin{align}
+            BF(S)=0, \: BF(R)=0
+        \end{align}
+        If P has right child $BF(P)=a \: (-1)$ after insertion, then after rotation it will move to the left child of R.  
+        \begin{align}
+            BF(S)=-a, \: BF(R)=0
+        \end{align}
+        If P has left child $BF(P)=-a \: (-1)$ after insertion, then after rotation it will move to the right child of S.
+         \begin{align}
+            BF(S)=0, \: BF(R)=a
+        \end{align}
+        
+        \item (Deletion at Left side of S $(a=1)$) \newline
+        If P is already balanced with $BF(P)=0$ before deletion `d', after deletion S and R is also balanced with
+        \begin{align}
+            BF(S)=0, \: BF(R)=0
+        \end{align}
+        If P has only left child $BF(P)=a \: (1)$ as well as deletion from left side of S, then after rotation it will move to the right child of S
+        \begin{align}
+            BF(S)=0, \: BF(R)=-a
+        \end{align}
+        If P has only right child $BF(P)=-a \:(-1)$ as well as deletion from left side of S, then after rotation it will move to the left child of R  
+        \begin{align}
+            BF(S)=a, \: BF(R)=0
+        \end{align}
+    \end{enumerate}
+    
+    \begin{figure}[H]
+        \begin{subfigure}{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.8]{ss/RL_Imbalance_Logic_insert.png}
+            \caption{Insertion}
+        \end{subfigure}
+        \begin{subfigure}{0.5\textwidth}
+            \centering
+            \includegraphics[scale=0.8]{ss/RL_Imbalance_Logic_delete.png}
+            \caption{Deletion}
+        \end{subfigure}
+        \caption{Rotation: RL BF Logic}
+    \label{fig:RL_Imbalance_Logic}
+    \end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%  SECTION END : Operation Logic %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+\newpage
+
+\section{TEST CASES} %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SECTION BEGIN : TEST CASES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The Section contains the test cases for main operations performed in the program.
+        \begin{figure}[h]
+            \centering
+                \includegraphics[scale=0.5]{tc/console- main menu.jpg}
+            \caption{AVL TREE Main Menu Console}
+            \label{fig:AVL_Main_Console}
+        \end{figure}
+
+%% Subsection Test Case: Search     
+\subsection{Search(k)}
+\begin{itemize}
+    \item \textbf{Original Tree}\newline
+	    \begin{figure}[H]
+            \centering
+                \includegraphics[scale=0.5]{ss/print - tree.png}
+            \caption{Searching: Original Tree}
+            \label{fig:tc_Insert_Tree_initial}
+        \end{figure}
+    \item \textbf{Search: 25, 22 }\newline
+	    \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.4]{tc/search - 25 exist.jpg} 
+                \caption{Search 25: Exist}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.4]{tc/search - 22 not exist.jpg}
+                \caption{Search 22: Not Exist}
+            \end{subfigure}
+            \caption{Searching: Search 25, 22}
+        \label{fig:tc_Search}
+        \end{figure}  
+\end{itemize}
+
+%% Subsection Test Case: Insert   
+\subsection{Insert(k)}
+\textbf{Test Case 1:} Final Output of Insertion and Duplicate Value Detection.
+\begin{itemize}
+    \item \textbf{Inserting: 20, 10, 30, 3, 15, 25, 40, 2, 9, 35 }\newline
+	    \begin{figure}[H]
+            \centering
+                \includegraphics[scale=0.5]{ss/print - tree.png}
+            \caption{Insertion: Initial Insertion}
+            \label{fig:Insert_Tree_initial}
+        \end{figure}
+    \item \textbf{Inserting: Again 3 (Duplicate) }\newline
+	    \begin{figure}[H]
+            \centering
+                \includegraphics[scale=0.5]{tc/insert - 3 already exist.jpg}
+            \caption{Insertion: Duplicate Insertion}
+            \label{fig:Insert_Tree_duplicate}
+        \end{figure}    
+\end{itemize}
+\textbf{Test Case 2:} Checking Rotations (Inserting in Sequence: 21, 26, 30, 9, 4, 14, 28)
+\begin{itemize}
+    \item \textbf{Inserting: 21, 26, 30 ... (RR Imbalance)}\newline
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/insert - 1 a_avl_i21_26.png} 
+                \caption{Before inserting 30}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/insert - 2 a_avl_i21_26_30_RR.png}
+                \caption{After inserting 30}
+            \end{subfigure}
+            \caption{Insertion: RR Imbalance Case}
+        \label{fig:Insert_Tree_RR}
+        \end{figure}
+        
+    \item \textbf{Inserting: ... 9, 4 (LL Imbalance)}\newline
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/insert - 3 a_avl_i21_26_30_9.png} 
+                \caption{Before inserting 4}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/insert - 4 a_avl_i21_26_30_9_4_LL.png}
+                \caption{After inserting 4}
+            \end{subfigure}
+            \caption{Insertion: LL Imbalance Case}
+        \label{fig:Insert_Tree_LL}
+        \end{figure}
+        
+    \item \textbf{Inserting: ... 14 (LR Imbalance)}\newline
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/insert - 4 a_avl_i21_26_30_9_4_LL.png} 
+                \caption{Before inserting 14}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/insert - 5 a_avl_i9_4_14_LR.png}
+                \caption{After inserting 14}
+            \end{subfigure}
+            \caption{Insertion: LR Imbalance Case}
+        \label{fig:Insert_Tree_LR}
+        \end{figure}
+        
+     \item \textbf{Inserting: ... 28 (RL Imbalance)}\newline
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/insert - 5 a_avl_i9_4_14_LR.png} 
+                \caption{Before inserting 28}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/insert - 6 a_avl_i9_4_14_28_RL.png}
+                \caption{After inserting 28}
+            \end{subfigure}
+            \caption{Insertion: RL Imbalance Case}
+        \label{fig:Insert_Tree_RL}
+        \end{figure}
+   
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SECTION END :  TEST CASES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Subsection Test Case: Delete   
+\subsection{Delete(k)}
+\begin{itemize}
+    \item \textbf{Original Tree}\newline
+	    \begin{figure}[H]
+            \centering
+                \includegraphics[scale=0.5]{ss/print - tree.png}
+            \caption{Deletion: Orgirnal Tree}
+            \label{fig:dtc_Insert_Tree_initial}
+        \end{figure}
+\end{itemize}
+
+\textbf{Test Case 1:} Empty Tree and Element Does not Exist.
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.6]{tc/delete - tree empty.jpg} 
+                \caption{Deletion on Empty Tree}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[scale=0.5]{tc/delete - 222 not exist.jpg}
+                \caption{Deleting 222, Element does not exist}
+            \end{subfigure}
+            \caption{Deletion: Empty Tree/Element not exist}
+        \label{fig:Deletion_TC_1}
+        \end{figure}
+
+\textbf{Test Case 2:} Checking Rotations.
+\begin{itemize}
+    \item \textbf{Deleting: 15 ... (LL Imbalance)}\newline
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[width=0.9\linewidth, height=4cm]{ss/print - tree.png} 
+                \caption{Before Deleting 15}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[width=0.9\linewidth, height=4cm]{tc/delete - a_avl_sd15_LL.png}
+                \caption{After Deleting 15}
+            \end{subfigure}
+            \caption{Deletion: LL Imbalance Case}
+        \label{fig:Deletion_TC_LL}
+        \end{figure}
+        
+    \item \textbf{Deleting: ... 25 (RL Imbalance)}\newline
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[width=0.9\linewidth, height=4cm]{tc/delete - a_avl_sd15_LL.png} 
+                \caption{Before Deleting 25}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[width=0.9\linewidth, height=4cm]{tc/delete - a_avl_sd15_25_RL.png}
+                \caption{After Deleting 25}
+            \end{subfigure}
+            \caption{Deletion: RL Imbalance Case}
+        \label{fig:Deletion_TC_RL}
+        \end{figure}
+        
+    \item \textbf{Deleting: 25 (RR Imbalance)}\newline
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[width=0.9\linewidth, height=4cm]{tc/delete - a_avl_d_before_25_rr.png} 
+                \caption{Before Deleting 25}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[width=0.9\linewidth, height=4cm]{tc/delete - a_avl_d_after_25_rr.png}
+                \caption{After Deleting 25}
+            \end{subfigure}
+            \caption{Deletion: RR Imbalance Case}
+        \label{fig:Deletion_TC_RR}
+        \end{figure}
+        
+    \item \textbf{Deleting: 25, 2, 15 (LR Imbalance)}\newline
+        \begin{figure}[H]
+            \centering
+            \begin{subfigure}{0.475\textwidth}
+                \centering
+                \includegraphics[width=0.8\linewidth, height=4cm]{ss/print - tree.png} 
+                \caption{Before Deleting 25}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}{0.475\textwidth}
+                \centering
+                \includegraphics[width=0.8\linewidth, height=3cm]{tc/delete - a_avl_sd25_RR.png}
+                \caption{After Deleting 25}
+            \end{subfigure}
+            \vskip\baselineskip
+            \begin{subfigure}{0.475\textwidth}
+                \centering                \includegraphics[width=0.8\linewidth, height=4cm]{tc/delete - a_avl_d25_2.png}
+                \caption{After Deleting 2}
+            \end{subfigure}
+            \hfill
+            \begin{subfigure}{0.475\textwidth}
+                \centering
+                \includegraphics[width=0.8\linewidth, height=3cm]{tc/delete - a_avl_sd25_2_15_LR.png}
+                \caption{After Deleting 15}
+            \end{subfigure}
+            \caption{Deletion: LR Imbalance Case}
+        \label{fig:Deletion_TC_LR}
+        \end{figure}
+        
+     \item \textbf{Deleting: 25, 2, 15, 20 (Deleting with two child)}\newline
+        \begin{figure}[H]
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[width=0.9\linewidth, height=3cm]{tc/delete - a_avl_sd25_2_15_LR.png} 
+                \caption{Before Deleting 20}
+            \end{subfigure}
+            \begin{subfigure}{0.5\textwidth}
+                \centering
+                \includegraphics[width=0.9\linewidth, height=3cm]{tc/delete - a_avl_sd25_2_15_20 inorder cases..png}
+                \caption{After Deleting 20}
+            \end{subfigure}
+            \caption{Deletion: Two Child Case}
+        \label{fig:Deletion_TC_inorder}
+        \end{figure}
+        
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% SECTION END :  TEST CASES %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%% Subsection Test Case: Exit 
+\subsection{Exit}
+\textbf{Test Case 1:} Exiting from program and checking memory leak.
+        \begin{figure}[H]
+                \centering
+                \includegraphics[scale=0.5]{ss/exit-memory check.png}
+                \caption{Final Exit}
+        \label{fig:exit_prg}
+        \end{figure}
+
+\end{document}
+% DOC END
