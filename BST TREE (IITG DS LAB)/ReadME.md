@@ -1,10 +1,11 @@
-DS LAB CS 513
-Assignment 01 (BST)
-Roll No: 214101058
+>DS LAB CS 513
+>
+>Assignment 01 (BST)
+>
+>Roll No: 214101058
 ----------------------------------------------------
-----------------------------------------------------
-DEV C++
----------
+### DEV C++
+
 Before Executing in Dev C++ : enable option -std=c++11
 >tools Tab
 	>compiler option
@@ -12,8 +13,8 @@ Before Executing in Dev C++ : enable option -std=c++11
 		> tick mark option => "Add the following commands when calling the compiler"
 			> add there -std=c++1
 --------------------------------------------------------
-Execution in DEV C++
--------------------
+### Execution in DEV C++
+
 To Execute the file name "assignment_01_bst.cpp"
 1. Open it in Dev C++
 2. Compile and Run it.
@@ -21,8 +22,8 @@ To Execute the file name "assignment_01_bst.cpp"
 4. using interactive menu, you can execute all the operations, by pressing appropriate key.
 
 --------------------------------------------------------
-To Print Tree using graphViz
------------------------------
+### To Print Tree using graphViz
+
 1. First generate the file using the option given in menu. press 'p'.
 2. execute the commands in separte cmd or powershell, where file is being generated.
 		dot -Tpng a_print_thbst.gv -o a_print_bst.png
@@ -34,8 +35,8 @@ Command for Split Tree 2 (if generated)
 	dot -Tpng a_print_thbst_split2.gv -o a_print_bst.png
 
 ----------------------------------
-Exit
------------------
-1. Use key 'n' to exit and deallocate the memory.
+### Exit
 
---------------------THE END------------------------------------------------------------
+1. Use key 'n' to exit and deallocate the memory.
+-----------------
+THE END
