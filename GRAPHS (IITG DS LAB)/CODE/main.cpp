@@ -247,6 +247,16 @@ void DiGraph::DijkstraSSSPAlgo(int src)
                 dij_distance[v] = u_dist + uv_wt;
                 pq.push({dij_distance[v],v});        // relaxing edge
             }//if relax
+            else
+            {
+            	if(u_dist + uv_wt < dij_distance[v])
+				{
+	                dij_parents[v] = u_val;
+	                dij_distance[v] = -INF;
+	                pq.push({dij_distance[v],v});        // relaxing edge
+            	}//if relax
+			}
+            
         }// for w
     }//while pq
 
@@ -260,8 +270,10 @@ void DiGraph::showDiGraphDijkstraValues(int src) {
     cout << "\n\t Dijkstra Distance For G(" << V<<", "<<E<<") ::\n\t Source :: "<<src<<"\t V[i]-->(DIS, PAR)\n";
     for (int v = 0; v < V; ++v) {
         cout << "\n V["<< v << "]:";
-        if(dij_distance[v]!=INF)
+        if(dij_distance[v]!=INF && dij_distance[v]!=-INF)
             cout << " -> (" << dij_distance[v]<<", v["<<dij_parents[v]<<"])";
+        else if(dij_distance[v]==-INF)
+            cout << " -> (-INF, v["<<dij_parents[v]<<"])";
         else
             cout << " -> (INF, v["<<dij_parents[v]<<"])";
         printf("\n");
@@ -320,8 +332,10 @@ void DiGraph::printGraphVizDijkstra(const string& file_name){
                 u_par = dij_parents[u_val];
 
                 //printing node
-                if(u_dist!=INF)
+                if(u_dist!=INF && u_dist!=-INF )
                     fout << u_val << " [label = \"" <<u_dist<< " \\n(" <<u_val<< ","<<u_par<<")\", style=bold, color=mediumseagreen];"<< endl;
+                else if(u_dist==-INF)
+                 	fout << u_val << " [label = \" -\u221E \\n(" <<u_val<< ","<<u_par<<")\", color=brown];"<< endl;
                 else
                     fout << u_val << " [label = \" \u221E \\n(" <<u_val<< ","<<u_par<<")\", color=brown];"<< endl;
 
