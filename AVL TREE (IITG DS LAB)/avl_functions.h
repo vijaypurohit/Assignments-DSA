@@ -353,9 +353,15 @@ void ATree::case_a(ANode* par, ANode* loc)
 	if (loc->leftc == nullptr && loc->rightc == nullptr) // Node having no left or right child so intialising child = NULL i.e. no child
     	child = nullptr;
     else if (loc->leftc != nullptr)
-           child = loc->leftc;
+       {
+		   child = loc->leftc;
+		   loc->leftc=nullptr;
+		}     
     else
-           child = loc->rightc;
+        {
+		   child = loc->rightc;
+		   loc->rightc=nullptr;
+		}  
            
     if (par == nullptr){
         head->rightc = troot = child;	//   When root is the only node in tree having no child
@@ -367,6 +373,7 @@ void ATree::case_a(ANode* par, ANode* loc)
         else
             par->rightc = child;
     }
+    
     delete loc;
 }
 
@@ -633,4 +640,3 @@ void ATree::t_print_graphviz(ANode *ptr, string file_name) {
 	string cmd = "dot -Tpng "+file_name+".gv -o "+file_name+".png";
     	system((const char*)cmd.c_str());
 }
-
